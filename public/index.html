@@ -1,0 +1,27 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Challenge CO – Organisateurs</title>
+<style>
+:root{--bg:#f6f7f4;--fg:#1d2a1f;--card:#fff;--ac:#2f6b3a;--bd:#d9ddd5;--warn:#b45309}
+@media(prefers-color-scheme:dark){:root{--bg:#161a16;--fg:#e8ece6;--card:#212721;--ac:#6fbf7f;--bd:#37403a;--warn:#fbbf24}}
+*{box-sizing:border-box}body{margin:0;font:16px system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+header{display:flex;gap:12px;align-items:center;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bd);flex-wrap:wrap}
+header h1{font-size:18px;margin:0;flex:1}main{max-width:1100px;margin:auto;padding:16px}
+button,input,select,textarea{font:inherit;padding:8px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg)}
+button{cursor:pointer}button.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+nav button.on{background:var(--ac);color:#fff}.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.bar input{flex:1;min-width:200px}
+.w{overflow-x:auto}table{width:100%;border-collapse:collapse;background:var(--card)}th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:left;font-size:14px}
+th{cursor:pointer;white-space:nowrap}.warn{color:var(--warn)}.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}.row{display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0}
+.row span:first-child{width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.b{height:14px;background:var(--ac);border-radius:4px}
+.hide{display:none}dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--fg);width:min(440px,95vw)}dialog label{display:block;margin:8px 0}dialog input,dialog select,dialog textarea{width:100%}
+#login{max-width:380px;margin:15vh auto}</style></head><body>
+<div id="login" class="card"><h2>Challenge CO</h2><p>Accès réservé aux organisateurs. Saisissez votre email pour recevoir un lien de connexion.</p>
+<form id="lf"><input type="email" id="le" required placeholder="prenom@exemple.fr" style="width:100%;margin-bottom:8px"><button class="p" style="width:100%">Recevoir le lien</button></form><p id="lm"></p></div>
+<div id="app" class="hide"><header><h1>Challenge CO – Coureurs</h1><nav><button id="t1" class="on">Recherche</button> <button id="t2">Statistiques</button></nav><button id="out">Quitter</button></header>
+<main><section id="v1"><div class="bar"><input id="q" type="search" placeholder="Nom, prénom, ID, club…"><select id="fs"><option value="">Sexe</option></select><select id="ft"><option value="">Âge</option></select><select id="fc"><option value="">Club</option></select><select id="fa"><option value="">Tous</option><option value="ko">Anomalies seulement</option></select></div>
+<p id="cnt"></p><div class="w"><table><thead><tr id="th"></tr></thead><tbody id="tb"></tbody></table></div><p><button id="pg" class="hide">Afficher plus</button></p></section>
+<section id="v2" class="hide"><div id="st"></div></section></main></div>
+<dialog id="dg"><form id="cf"><h3>Signaler une erreur</h3><p id="ci"></p><label>Champ concerné<select id="cch"><option>Nom</option><option>Prénom</option><option>Sexe</option><option>Date de naissance</option><option>Email</option><option>Téléphone</option><option>Club</option><option>Autre</option></select></label>
+<label>Valeur correcte<input id="cv" required maxlength="200"></label><label>Commentaire<textarea id="cc" maxlength="1000"></textarea></label><input id="cw" class="hide" tabindex="-1" autocomplete="off">
+<p id="cm"></p><button class="p">Envoyer</button> <button type="button" id="cx">Fermer</button></form></dialog>
+<script src="app.js"></script></body></html>
