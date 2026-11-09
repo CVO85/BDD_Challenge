@@ -2,7 +2,7 @@ const $ = s => document.querySelector(s);
 const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
 const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 let DATA = [], sortK = 'nom', sortD = 1, shown = 50, cur = null;
-const COLS = [['id', 'ID'], ['nom', 'Nom'], ['prenom', 'Prénom'], ['sexe', 'Sexe'], ['tranche', 'Âge'], ['club', 'Club'], ['anomalie', 'Statut']];
+const COLS = [['id', 'ID'], ['nom', 'Nom'], ['prenom', 'Prénom'], ['sexe', 'Sexe'], ['tranche', 'Âge'], ['club', 'Club'], ['anomalie', 'Contrôle']];
 async function api(u, o) {
   const r = await fetch(u, { credentials: 'same-origin', ...o });
   if (r.status === 401) { showLogin(); throw 0; }
@@ -11,8 +11,14 @@ async function api(u, o) {
 function showLogin() { $('#login').classList.remove('hide'); $('#app').classList.add('hide'); }
 $('#lf').onsubmit = async e => {
   e.preventDefault();
-  const r = await fetch('/api/auth', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: $('#le').value }) });
-  $('#lm').textContent = r.status === 429 ? 'Trop de tentatives, réessayez plus tard.' : 'Si cette adresse est autorisée, un lien vient de vous être envoyé (valable 15 min).';
+  const b = $('#lf button'), m = $('#lm'); b.disabled = true; m.className = ''; m.textContent = 'Envoi en cours…';
+  try {
+    const r = await fetch('/api/auth', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: $('#le').value }) });
+    const d = await r.json().catch(() => ({}));
+    m.className = r.ok ? 'ok' : 'err';
+    m.textContent = r.ok ? 'Lien envoyé : consultez votre boîte mail (et les spams). Il est valable 15 minutes.' : (d.error || 'Une erreur est survenue.');
+  } catch { m.className = 'err'; m.textContent = 'Connexion impossible, réessayez.'; }
+  b.disabled = false;
 };
 $('#out').onclick = async () => { await fetch('/api/logout', { method: 'POST' }); location.reload(); };
 function opts(sel, vals) { [...new Set(vals)].filter(Boolean).sort().forEach(v => sel.append(new Option(v, v))); }
@@ -27,6 +33,9 @@ async function init() {
 }
 ['q', 'fs', 'ft', 'fc', 'fa'].forEach(i => $('#' + i).oninput = () => { shown = 50; render(); });
 $('#pg').onclick = () => { shown += 50; render(); };
+const SV = d => `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICON = { user: SV('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'), flag: SV('<path d="M5 21V4m0 0h11l-2 4 2 4H5"/>') };
+const btn = (cls, icon, label) => { const b = el('button', 'btn ' + cls); b.innerHTML = ICON[icon]; b.append(label); return b; };
 function render() {
   const q = norm($('#q').value), f = { sexe: $('#fs').value, tranche: $('#ft').value, club: $('#fc').value };
   let L = DATA.filter(r => (!q || norm([r.id, r.nom, r.prenom, r.club].join(' ')).includes(q)) && Object.entries(f).every(([k, v]) => !v || r[k] === v) && ($('#fa').value !== 'ko' || (r.anomalie && !r.anomalie.startsWith('OK'))));
@@ -34,9 +43,20 @@ function render() {
   $('#cnt').textContent = `${L.length} coureur(s) sur ${DATA.length}`;
   const tb = $('#tb'); tb.replaceChildren();
   L.slice(0, shown).forEach(r => {
-    const tr = el('tr'); COLS.forEach(([k]) => { const td = el('td', k === 'anomalie' && !r.anomalie.startsWith('OK') ? 'warn' : '', r[k]); tr.append(td); });
-    const td = el('td'), v = el('button', '', 'Contacts'), s = el('button', '', 'Erreur ?');
-    v.onclick = async () => { const d = await api('/api/data?action=reveal&id=' + encodeURIComponent(r.id)); v.replaceWith(el('small', '', `${d.email} · ${d.tel} · né(e) le ${d.naissance}`)); };
+    const tr = el('tr');
+    COLS.forEach(([k]) => {
+      const td = el('td');
+      if (k === 'sexe' && r.sexe) { const g = r.sexe.toLowerCase().startsWith('f') ? 'f' : 'm', p = el('span', 'sx ' + g, g.toUpperCase()); p.title = r.sexe; p.setAttribute('aria-label', r.sexe); td.append(p); }
+      else if (k === 'anomalie') td.append(el('span', 'pill' + (r.anomalie.startsWith('OK') ? '' : ' ko'), r.anomalie.replace(/^[^\p{L}]+/u, '')));
+      else td.textContent = r[k];
+      tr.append(td);
+    });
+    const td = el('td'), v = btn('', 'user', 'Contacts'), s = btn('er', 'flag', 'Erreur ?');
+    v.onclick = async () => {
+      const d = await api('/api/data?action=reveal&id=' + encodeURIComponent(r.id)), w = el('span', 'contact');
+      const m = el('a', '', d.email); m.href = 'mailto:' + d.email; const t = el('a', '', d.tel); t.href = 'tel:' + d.tel.replace(/\s/g, '');
+      w.append(m, ' · ', t, ' · né(e) le ' + d.naissance); v.replaceWith(w);
+    };
     s.onclick = () => { cur = r; $('#ci').textContent = `${r.id} – ${r.prenom} ${r.nom}`; $('#cm').textContent = ''; $('#dg').showModal(); };
     td.append(v, ' ', s); tr.append(td); tb.append(tr);
   });

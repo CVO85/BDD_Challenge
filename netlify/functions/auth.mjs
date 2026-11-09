@@ -16,10 +16,12 @@ export default async req => {
   const { email = '' } = await req.json().catch(() => ({}));
   const e = String(email).trim().toLowerCase();
   if (limited('auth:' + ip, 5) || limited('auth:' + e, 3)) return json({ error: 'Trop de tentatives, réessayez plus tard.' }, 429);
-  if (allowed(e)) {
-    const link = `${process.env.SITE_URL}/api/verify?t=${sign({ typ: 'login', email: e }, 15 * 60e3)}`;
-    await mail(e, 'Connexion – Challenge CO', `Bonjour,\n\nVoici votre lien de connexion (valable 15 minutes) :\n${link}\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez ce message.`);
-    log('link_sent', e);
-  } else log('link_refused', e);
-  return json({ ok: 1 }); // réponse identique dans tous les cas
+  if (!allowed(e)) {
+    log('link_refused', e);
+    return json({ error: "Cette adresse n'est pas autorisée. Vérifiez la saisie ou contactez l'organisation du challenge." }, 403);
+  }
+  const link = `${process.env.SITE_URL}/api/verify?t=${sign({ typ: 'login', email: e }, 15 * 60e3)}`;
+  const r = await mail(e, 'Connexion – Challenge CO', `Bonjour,\n\nVoici votre lien de connexion (valable 15 minutes) :\n${link}\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez ce message.`);
+  log('link_sent', e, { ok: r.ok });
+  return r.ok ? json({ ok: 1 }) : json({ error: "L'envoi du mail a échoué, réessayez ou contactez l'organisation." }, 502);
 };
