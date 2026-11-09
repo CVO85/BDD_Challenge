@@ -18,10 +18,16 @@ export default async req => {
     return json({
       total: R.length, anomalies: ko.length,
       sexe: count(R, r => r.Sexe), tranche: count(R, r => r['Tranche Age']).sort((x, y) => x[0].localeCompare(y[0])),
-      club: count(R, r => r.Club).slice(0, 10), statut: count(R, r => r.Statut_Email),
+      club: count(R.filter(r => r.Club && !r.Club.startsWith('XX')), r => r.Club).slice(0, 10), nbClubs: new Set(R.map(r => r.Club).filter(Boolean)).size,
+      autre: R.filter(r => !r.Club || r.Club.startsWith('XX')).length, mineurs: R.filter(r => r.Age !== '' && +r.Age < 18).length, statut: count(R, r => r.Statut_Email),
       typeAnomalie: count(ko, r => r.Anomalies),
       inscriptions: count(R, r => (r.Date_Envoi || '').slice(0, 10)).sort((x, y) => x[0].split('/').reverse().join().localeCompare(y[0].split('/').reverse().join()))
     });
+  }
+  if (a === 'export' && req.method === 'POST') {
+    const { ids = [] } = await req.json().catch(() => ({})), set = new Set(ids), out = R.filter(r => set.has(r.ID_Coureur));
+    log('export', s.email, { n: out.length });
+    return json(out.map(r => ({ id: r.ID_Coureur, nom: r.Nom, prenom: r['Prénom'], sexe: r.Sexe, naissance: r.Date_Naissance, email: r.Email, tel: r['Téléphone'], club: r.Club, tranche: r['Tranche Age'], anomalie: r.Anomalies, statut: r.Statut_Email })));
   }
   return json({ error: 'action' }, 400);
 };
