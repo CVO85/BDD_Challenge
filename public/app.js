@@ -24,11 +24,11 @@ $('#out').onclick = async () => { await fetch('/api/logout', { method: 'POST' })
 function opts(sel, vals) { [...new Set(vals)].filter(Boolean).sort().forEach(v => sel.append(new Option(v, v))); }
 async function init() {
   try { await api('/api/me'); DATA = await api('/api/data?action=list'); } catch { return; }
-  $('#login').classList.add('hide'); $('#app').classList.remove('hide'); document.body.classList.add('in');
+  $('#login').classList.add('hide'); $('#app').classList.remove('hide'); document.body.classList.add('in'); $('#capn').textContent = `${DATA.length} coureurs inscrits`;
   opts($('#fs'), DATA.map(r => r.sexe)); opts($('#ft'), DATA.map(r => r.tranche)); opts($('#fc'), DATA.map(r => r.club)); opts($('#fm'), DATA.map(r => r.statut)); opts($('#fa'), DATA.map(r => r.anomalie).filter(a => a && !a.startsWith('OK')));
   const th = $('#th');
   COLS.forEach(([k, l]) => { const h = el('th', '', l); h.onclick = () => { sortD = sortK === k ? -sortD : 1; sortK = k; render(); }; th.append(h); });
-  th.append(el('th', '', ''));
+  th.append(el('th', 'act', ''));
   render();
 }
 ['q', 'fs', 'ft', 'fc', 'fa', 'fm'].forEach(i => $('#' + i).oninput = () => { shown = 100; render(); });
@@ -50,11 +50,13 @@ function render() {
     COLS.forEach(([k]) => {
       const td = el('td');
       if (k === 'sexe' && r.sexe) { const g = r.sexe.toLowerCase().startsWith('f') ? 'f' : 'm', p = el('span', 'sx ' + g, g.toUpperCase()); p.title = r.sexe; p.setAttribute('aria-label', r.sexe); td.append(p); }
-      else if (k === 'anomalie') td.append(el('span', 'pill' + (r.anomalie.startsWith('OK') ? '' : ' ko'), r.anomalie.replace(/^[^\p{L}]+/u, '')));
+      else if (k === 'anomalie') { const a = r.anomalie.replace(/^[^\p{L}]+/u, ''), p = el('span', 'pill cut' + (r.anomalie.startsWith('OK') ? '' : ' ko'), a); p.title = a; td.append(p); }
+      else if (k === 'club') { const c = el('span', 'cut', r.club); c.title = r.club; td.append(c); }
+      else if (k === 'tranche') td.textContent = r.tranche.replace(/^\d+\s*-\s*/, '');
       else td.textContent = r[k];
       tr.append(td);
     });
-    const td = el('td'), v = btn('', 'user', 'Contacts'), s = btn('er', 'flag', 'Erreur ?');
+    const td = el('td', 'act'), v = btn('', 'user', 'Contacts'), s = btn('er', 'flag', 'Erreur ?');
     v.onclick = async () => {
       const nx = tr.nextElementSibling;
       if (nx && nx.classList.contains('det')) { nx.remove(); return; }
@@ -90,9 +92,15 @@ $('#ex').onclick = async () => {
     document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   } finally { b.disabled = false; }
 };
-function bars(title, data, total, pick) {
-  const c = el('div', 'card'), max = Math.max(...data.map(d => d[1]), 1); c.append(el('h3', '', title));
-  data.forEach(([k, n, key]) => { const r = el('div', 'row'), b = el('div', 'b'); if (pick) { r.classList.add('clk'); r.onclick = () => pick(key ?? k); } b.style.width = (n / max * 40) + '%'; r.append(el('span', '', k), b, el('span', '', `${n} (${pc(n, total)})`)); c.append(r); });
+function bars(title, data, total, pick, color) {
+  const c = el('div', 'card wide'), max = Math.max(...data.map(d => d[1]), 1); c.append(el('h3', '', title));
+  data.forEach(([k, n, key]) => {
+    const r = el('div', 'bi'), t = el('div', 'bt'), tr = el('div', 'tr'), b = el('div', 'b');
+    b.style.width = (n / max * 100) + '%'; if (color) b.style.background = color; tr.append(b);
+    t.append(tr, el('span', 'bv', `${n} (${pc(n, total)})`)); r.append(el('div', 'bl', k), t);
+    if (pick) { r.classList.add('clk'); r.onclick = () => pick(key ?? k); }
+    c.append(r);
+  });
   return c;
 }
 function donut(title, data, colorOf, pick) {
@@ -109,11 +117,12 @@ function donut(title, data, colorOf, pick) {
   w.append(svg, lg); c.append(w); return c;
 }
 function vcols(title, data, color, pick) {
-  const c = el('div', 'card'), max = Math.max(...data.map(d => d[1]), 1), w = el('div', 'vc'); c.append(el('h3', '', title));
+  const c = el('div', 'card' + (data.length > 8 ? ' wide' : '')), max = Math.max(...data.map(d => d[1]), 1), w = el('div', 'vc'); c.append(el('h3', '', title));
   data.forEach(([k, n, key]) => { const col = el('div', 'col'), b = el('div', 'vb'); if (pick) { col.classList.add('clk'); col.onclick = () => pick(key ?? k); } b.style.height = Math.max(n / max * 140, 2) + 'px'; b.style.background = color; col.title = `${k} : ${n}`; col.append(el('small', '', n), b, el('small', '', k)); w.append(col); });
   c.append(w); return c;
 }
 const kpi = (l, v, cls) => { const c = el('div', 'card kpi'); c.append(el('div', 'n ' + (cls || ''), v), el('div', '', l)); return c; };
+const OTH = ['var(--or)', '#3b82f6', '#8b5cf6', '#eab308', '#ef4444', '#14b8a6'];
 const SEXC = k => /^f/i.test(k) ? '#ec4899' : /^m/i.test(k) ? '#3b82f6' : '#9ca3af';
 let S = null, sub = 1;
 $('#s1').onclick = () => { sub = 1; drawStats(); }; $('#s2').onclick = () => { sub = 2; drawStats(); };
@@ -135,8 +144,8 @@ function drawStats() {
   } else {
     k.append(kpi('inscriptions', S.total), kpi(`sans anomalie (${pc(ok, S.total)})`, ok, 'ok'), kpi(`avec anomalie (${pc(S.anomalies, S.total)})`, S.anomalies, S.anomalies ? 'warn' : 'ok'));
     g.append(donut('Qualité des inscriptions', [['Sans anomalie', ok], ['Avec anomalie', S.anomalies]], a => a.startsWith('Sans') ? 'var(--ac)' : 'var(--or)', v => go({ fa: v.startsWith('Sans') ? 'ok' : 'ko' })),
-      donut('Statut des emails', S.statut, a => a === 'Envoyé' ? 'var(--ac)' : 'var(--or)', v => go({ fm: v })));
-    if (S.typeAnomalie.length) g.append(bars('Types d’anomalies', S.typeAnomalie.map(([a, n]) => [a.replace(/^[^\p{L}]+/u, ''), n, a]), S.anomalies, v => go({ fa: v })));
+      donut('Statut des emails', S.statut, (a, i) => a === 'Envoyé' ? 'var(--ac)' : OTH[i % OTH.length], v => go({ fm: v })));
+    if (S.typeAnomalie.length) g.append(bars('Types d’anomalies', S.typeAnomalie.map(([a, n]) => [a.replace(/^[^\p{L}]+/u, ''), n, a]), S.anomalies, v => go({ fa: v }), 'var(--or)'));
     g.append(vcols('Inscriptions par jour', S.inscriptions.map(([a, n]) => [a.slice(0, 5), n]), 'var(--or)'));
   }
   $('#st').replaceChildren(h, k, g);
