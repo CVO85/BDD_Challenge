@@ -107,11 +107,11 @@ function donut(title, data, colorOf, pick) {
   const c = el('div', 'card'), tot = data.reduce((s, d) => s + d[1], 0) || 1, w = el('div', 'dn'), lg = el('div', 'lg'), svg = document.createElementNS(NS, 'svg');
   c.append(el('h3', '', title)); svg.setAttribute('viewBox', '0 0 42 42'); svg.setAttribute('width', 160); svg.setAttribute('height', 160);
   let off = 25;
-  data.forEach(([k, n], i) => {
+  data.forEach(([k, n, key], i) => {
     const p = n / tot * 100, ci = document.createElementNS(NS, 'circle'), col = colorOf(k, i);
     ci.setAttribute('cx', 21); ci.setAttribute('cy', 21); ci.setAttribute('r', 15.915); ci.setAttribute('fill', 'none'); ci.setAttribute('stroke-width', 7);
-    ci.setAttribute('stroke-dasharray', `${p} ${100 - p}`); ci.setAttribute('stroke-dashoffset', off); ci.style.stroke = col; off -= p; svg.append(ci); if (pick) { ci.style.cursor = 'pointer'; ci.onclick = () => pick(k); }
-    const d = el('div'), dot = el('span', 'dot'); dot.style.background = col; d.append(dot, `${k} : ${n} (${pc(n, tot)})`); if (pick) { d.classList.add('clk'); d.onclick = () => pick(k); } lg.append(d);
+    ci.setAttribute('stroke-dasharray', `${p} ${100 - p}`); ci.setAttribute('stroke-dashoffset', off); ci.style.stroke = col; off -= p; svg.append(ci); if (pick) { ci.style.cursor = 'pointer'; ci.onclick = () => pick(key ?? k); }
+    const d = el('div'), dot = el('span', 'dot'); dot.style.background = col; d.append(dot, el('span', 'lb', k), el('span', 'lv', `${n} (${pc(n, tot)})`)); if (pick) { d.classList.add('clk'); d.onclick = () => pick(key ?? k); } lg.append(d);
   });
   const t = document.createElementNS(NS, 'text'); t.setAttribute('x', 21); t.setAttribute('y', 23.5); t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-size', 7); t.setAttribute('font-weight', 700); t.style.fill = 'var(--fg)'; t.textContent = tot; svg.append(t);
   w.append(svg, lg); c.append(w); return c;
@@ -122,6 +122,7 @@ function vcols(title, data, color, pick) {
   c.append(w); return c;
 }
 const kpi = (l, v, cls) => { const c = el('div', 'card kpi'); c.append(el('div', 'n ' + (cls || ''), v), el('div', '', l)); return c; };
+const PAL = ['var(--ac)', 'var(--or)', '#3b82f6', '#8b5cf6', '#eab308', '#14b8a6', '#ef4444'];
 const OTH = ['var(--or)', '#3b82f6', '#8b5cf6', '#eab308', '#ef4444', '#14b8a6'];
 const SEXC = k => /^f/i.test(k) ? '#ec4899' : /^m/i.test(k) ? '#3b82f6' : '#9ca3af';
 let S = null, sub = 1;
@@ -133,20 +134,39 @@ function go(f) {
   shown = 100; tab(1); $('#back').classList.remove('hide'); render();
 }
 $('#bk').onclick = () => { ['q', 'fs', 'ft', 'fc', 'fa', 'fm'].forEach(i => { $('#' + i).value = ''; }); $('#back').classList.add('hide'); tab(2); };
+let gran = 'jour';
+function mails() {
+  const c = el('div', 'card wide'), hd = el('div', 'mh'), list = el('div', 'ml'), tg = el('div', 'tg'), M = new Map();
+  [['jour', 'Par jour'], ['semaine', 'Par semaine']].forEach(([g, l]) => { const b = el('button', gran === g ? 'on' : '', l); b.onclick = () => { gran = g; drawStats(); }; tg.append(b); });
+  hd.append(el('h3', '', 'Mail ID envoyé le'), tg);
+  S.inscriptions.forEach(([s, n]) => {
+    if (!/^\d{2}\/\d{2}\/\d{4}/.test(s)) return;
+    const [d, m, y] = s.slice(0, 10).split('/').map(Number), dt = new Date(y, m - 1, d);
+    if (gran === 'semaine') dt.setDate(dt.getDate() - (dt.getDay() + 6) % 7);
+    M.set(dt.getTime(), (M.get(dt.getTime()) || 0) + n);
+  });
+  let cum = 0; const max = Math.max(...M.values(), 1);
+  [...M.entries()].sort((a, b) => a[0] - b[0]).map(([k, n]) => [k, n, cum += n]).reverse().forEach(([k, n, cu]) => {
+    const dt = new Date(k), lab = gran === 'semaine' ? 'Sem. du ' + dt.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : dt.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+    const r = el('div', 'mr'), tr = el('div', 'tr'), b = el('div', 'b'); b.style.width = (n / max * 100) + '%'; b.style.background = 'var(--or)'; tr.append(b);
+    r.append(el('span', 'md', lab), tr, el('span', 'bv', n), el('span', 'mc', 'cumul ' + cu)); list.append(r);
+  });
+  c.append(hd, list); return c;
+}
 function drawStats() {
   $('#s1').classList.toggle('on', sub === 1); $('#s2').classList.toggle('on', sub === 2);
   const k = el('div', 'kpis'), g = el('div', 'grid'), ok = S.total - S.anomalies, h = el('p', 'hint', 'Cliquez sur un élément d’un graphique pour afficher les coureurs correspondants.');
   if (sub === 1) {
     k.append(kpi('coureurs inscrits', S.total), kpi('clubs différents', S.nbClubs), kpi(`autre asso / sans club (${pc(S.autre, S.total)})`, S.autre), kpi('mineurs', S.mineurs));
     g.append(donut('Répartition par sexe', S.sexe, SEXC, v => go({ fs: v })),
-      vcols('Tranches d’âge', S.tranche.map(([a, n]) => [a.replace(/^\d+\s*-\s*/, ''), n, a]), 'var(--ac)', v => go({ ft: v })),
+      donut('Répartition par tranche d’âge', S.tranche.map(([a, n]) => [a.replace(/^\d+\s*-\s*/, ''), n, a]), (a, i) => PAL[i % PAL.length], v => go({ ft: v })),
       bars('Top 10 clubs (hors « autre asso »)', S.club, S.total, v => go({ fc: v })));
   } else {
     k.append(kpi('inscriptions', S.total), kpi(`sans anomalie (${pc(ok, S.total)})`, ok, 'ok'), kpi(`avec anomalie (${pc(S.anomalies, S.total)})`, S.anomalies, S.anomalies ? 'warn' : 'ok'));
     g.append(donut('Qualité des inscriptions', [['Sans anomalie', ok], ['Avec anomalie', S.anomalies]], a => a.startsWith('Sans') ? 'var(--ac)' : 'var(--or)', v => go({ fa: v.startsWith('Sans') ? 'ok' : 'ko' })),
       donut('Statut des emails', S.statut, (a, i) => a === 'Envoyé' ? 'var(--ac)' : OTH[i % OTH.length], v => go({ fm: v })));
     if (S.typeAnomalie.length) g.append(bars('Types d’anomalies', S.typeAnomalie.map(([a, n]) => [a.replace(/^[^\p{L}]+/u, ''), n, a]), S.anomalies, v => go({ fa: v }), 'var(--or)'));
-    g.append(vcols('Inscriptions par jour', S.inscriptions.map(([a, n]) => [a.slice(0, 5), n]), 'var(--or)'));
+    g.append(mails());
   }
   $('#st').replaceChildren(h, k, g);
 }

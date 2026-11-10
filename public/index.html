@@ -40,6 +40,20 @@ nav button.on{background:none;color:var(--ac);border-bottom-color:var(--or);opac
 th.act,td.act{position:sticky;right:0;background:var(--card);box-shadow:-8px 0 8px -8px rgba(0,0,0,.25)}th.act{background:var(--tint);z-index:2}
 .wide{grid-column:1/-1}.bi{margin:10px 0;padding:2px 4px;border-radius:6px}.bl{font-size:14px;margin-bottom:3px}.bt{display:flex;align-items:center;gap:10px}
 .tr{flex:1;background:var(--tint);border-radius:4px;height:14px}.tr .b{height:14px}.bv{font-size:13px;min-width:90px;text-align:right;white-space:nowrap}
+.lg{flex:1;min-width:190px}.lg div{display:flex;align-items:baseline;gap:8px}.lb{flex:1}.lv{white-space:nowrap}.dot{flex:none}
+.mh{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px}.mh h3{margin:0}.tg{display:flex;gap:4px}.tg button{padding:4px 12px;border-radius:999px;font-size:13px}.tg button.on{background:var(--or);color:#fff;border-color:var(--or)}
+.ml{max-height:380px;overflow-y:auto;padding-right:4px}.mr{display:grid;grid-template-columns:120px 1fr 40px 90px;gap:10px;align-items:center;margin:5px 0}.md{font-size:13px;text-transform:capitalize}.mc{font-size:12px;opacity:.7;white-space:nowrap}.mr .bv{min-width:0}
+@media(max-width:700px){
+main{padding:10px}.hin{padding:0 10px}.logo{max-height:90px}.grid{grid-template-columns:minmax(0,1fr)}.card{min-width:0}.kpis{grid-template-columns:1fr 1fr}.card{padding:12px}
+.bar select,.bar input{flex:1 1 46%;min-width:0}.bar input{flex-basis:100%}.bar #ex{flex-basis:100%;justify-content:center;margin-left:0!important}
+.w{border:0;background:none;overflow:visible;border-radius:0}table,tbody{display:block}thead{display:none}
+tbody tr:not(.det){display:grid;grid-template-columns:auto auto auto 1fr;grid-template-areas:"sx nom pre id" "club club club club" "age age ctl ctl" "act act act act";gap:6px 8px;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+tbody tr:not(.det) td{display:block;border:0;padding:0;white-space:normal;background:none!important;box-shadow:none;font-size:14px}
+tr:not(.det) td:nth-child(1){grid-area:id;text-align:right;font-size:12px;opacity:.6}tr:not(.det) td:nth-child(2){grid-area:nom;font-weight:700}tr:not(.det) td:nth-child(3){grid-area:pre;font-weight:700}
+tr:not(.det) td:nth-child(4){grid-area:sx}tr:not(.det) td:nth-child(5){grid-area:age;font-size:13px}tr:not(.det) td:nth-child(6){grid-area:club}tr:not(.det) td:nth-child(7){grid-area:ctl;text-align:right}
+tbody tr:not(.det) td.act{grid-area:act;position:static;display:flex;gap:8px;padding-top:4px}td.act .btn{flex:1;justify-content:center;padding:9px}.cut{max-width:100%}
+.det{display:block;margin:-12px 0 10px}.det td{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:10px 14px;border-radius:0 0 12px 12px;white-space:normal}.det .dl{margin:0}
+.mr{grid-template-columns:86px 1fr 32px}.mc{display:none}}
 </style></head><body>
 <img class="ban" src="banniere.png" alt="Challenge Vendée Orientation 2026/2027">
 <div id="login" class="card"><h2>Espace organisateurs</h2><p>Saisissez votre email pour recevoir un lien de connexion.</p>
