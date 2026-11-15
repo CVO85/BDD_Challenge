@@ -21,6 +21,8 @@ export default async req => {
       club: count(R.filter(r => r.Club && !r.Club.startsWith('XX')), r => r.Club).slice(0, 10), nbClubs: new Set(R.map(r => r.Club).filter(Boolean)).size,
       autre: R.filter(r => !r.Club || r.Club.startsWith('XX')).length, mineurs: R.filter(r => r.Age !== '' && +r.Age < 18).length, statut: count(R, r => r.Statut_Email),
       typeAnomalie: count(ko, r => r.Anomalies),
+      sansEmail: R.filter(r => !(r.Email || '').trim()).length,
+      anomClub: count(ko, r => r.Club).map(([k, n]) => [k, n, R.filter(r => (r.Club || '(vide)') === k).length]),
       inscriptions: count(R, r => (r.Date_Envoi || '').slice(0, 10)).sort((x, y) => x[0].split('/').reverse().join().localeCompare(y[0].split('/').reverse().join()))
     });
   }

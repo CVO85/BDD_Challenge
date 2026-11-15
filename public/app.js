@@ -94,10 +94,10 @@ $('#ex').onclick = async () => {
 };
 function bars(title, data, total, pick, color) {
   const c = el('div', 'card wide'), max = Math.max(...data.map(d => d[1]), 1); c.append(el('h3', '', title));
-  data.forEach(([k, n, key]) => {
+  data.forEach(([k, n, key, txt]) => {
     const r = el('div', 'bi'), t = el('div', 'bt'), tr = el('div', 'tr'), b = el('div', 'b');
     b.style.width = (n / max * 100) + '%'; if (color) b.style.background = color; tr.append(b);
-    t.append(tr, el('span', 'bv', `${n} (${pc(n, total)})`)); r.append(el('div', 'bl', k), t);
+    t.append(tr, el('span', 'bv', txt ?? `${n} (${pc(n, total)})`)); r.append(el('div', 'bl', k), t);
     if (pick) { r.classList.add('clk'); r.onclick = () => pick(key ?? k); }
     c.append(r);
   });
@@ -162,10 +162,11 @@ function drawStats() {
       donut('Répartition par tranche d’âge', S.tranche.map(([a, n]) => [a.replace(/^\d+\s*-\s*/, ''), n, a]), (a, i) => PAL[i % PAL.length], v => go({ ft: v })),
       bars('Top 10 clubs (hors « autre asso »)', S.club, S.total, v => go({ fc: v })));
   } else {
-    k.append(kpi('inscriptions', S.total), kpi(`sans anomalie (${pc(ok, S.total)})`, ok, 'ok'), kpi(`avec anomalie (${pc(S.anomalies, S.total)})`, S.anomalies, S.anomalies ? 'warn' : 'ok'));
+    k.append(kpi('inscriptions', S.total), kpi(`sans anomalie (${pc(ok, S.total)})`, ok, 'ok'), kpi(`avec anomalie (${pc(S.anomalies, S.total)})`, S.anomalies, S.anomalies ? 'warn' : 'ok'), kpi(`sans email (${pc(S.sansEmail, S.total)})`, S.sansEmail, S.sansEmail ? 'warn' : 'ok'));
     g.append(donut('Qualité des inscriptions', [['Sans anomalie', ok], ['Avec anomalie', S.anomalies]], a => a.startsWith('Sans') ? 'var(--ac)' : 'var(--or)', v => go({ fa: v.startsWith('Sans') ? 'ok' : 'ko' })),
       donut('Statut des emails', S.statut, (a, i) => a === 'Envoyé' ? 'var(--ac)' : OTH[i % OTH.length], v => go({ fm: v })));
     if (S.typeAnomalie.length) g.append(bars('Types d’anomalies', S.typeAnomalie.map(([a, n]) => [a.replace(/^[^\p{L}]+/u, ''), n, a]), S.anomalies, v => go({ fa: v }), 'var(--or)'));
+    if (S.anomalies) g.append(bars('Anomalies par club (nombre, et part des coureurs du club)', S.anomClub.map(([a, n, t]) => [a, n, a, `${n} / ${t} (${pc(n, t)})`]), S.anomalies, v => go({ fc: v, fa: 'ko' }), 'var(--or)'));
     g.append(mails());
   }
   $('#st').replaceChildren(h, k, g);
