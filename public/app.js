@@ -1,5 +1,6 @@
 const $ = s => document.querySelector(s);
 const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const types = a => (a || '').split('|').map(x => x.replace(/^[^\p{L}]+/u, '').trim()).filter(Boolean);
 const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 let DATA = [], sortK = 'nom', sortD = 1, shown = 100, cur = null;
 const COLS = [['id', 'ID'], ['nom', 'Nom'], ['prenom', 'Prénom'], ['sexe', 'Sexe'], ['tranche', 'Âge'], ['club', 'Club'], ['anomalie', 'Contrôle']];
@@ -25,7 +26,7 @@ function opts(sel, vals) { [...new Set(vals)].filter(Boolean).sort().forEach(v =
 async function init() {
   try { await api('/api/me'); DATA = await api('/api/data?action=list'); } catch { return; }
   $('#login').classList.add('hide'); $('#app').classList.remove('hide'); document.body.classList.add('in'); $('#capn').textContent = `${DATA.length} coureurs inscrits`;
-  opts($('#fs'), DATA.map(r => r.sexe)); opts($('#ft'), DATA.map(r => r.tranche)); opts($('#fc'), DATA.map(r => r.club)); opts($('#fm'), DATA.map(r => r.statut)); opts($('#fa'), DATA.map(r => r.anomalie).filter(a => a && !a.startsWith('OK')));
+  opts($('#fs'), DATA.map(r => r.sexe)); opts($('#ft'), DATA.map(r => r.tranche)); opts($('#fc'), DATA.map(r => r.club)); opts($('#fm'), DATA.map(r => r.statut)); opts($('#fa'), DATA.flatMap(r => types(r.anomalie)).filter(t => !t.startsWith('OK')));
   const th = $('#th');
   COLS.forEach(([k, l]) => { const h = el('th', '', l); h.onclick = () => { sortD = sortK === k ? -sortD : 1; sortK = k; render(); }; th.append(h); });
   th.append(el('th', 'act', ''));
@@ -37,7 +38,7 @@ const SV = d => `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" str
 const ICON = { user: SV('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'), flag: SV('<path d="M5 21V4m0 0h11l-2 4 2 4H5"/>') };
 ICON.dl = SV('<path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/>');
 const REV = {}; let VIEW = [];
-const okF = r => { const v = $('#fa').value; return !v || (v === 'ko' ? r.anomalie && !r.anomalie.startsWith('OK') : v === 'ok' ? r.anomalie.startsWith('OK') : r.anomalie === v); };
+const okF = r => { const v = $('#fa').value; return !v || (v === 'ko' ? r.anomalie && !r.anomalie.startsWith('OK') : v === 'ok' ? r.anomalie.startsWith('OK') : types(r.anomalie).includes(v)); };
 const btn = (cls, icon, label) => { const b = el('button', 'btn ' + cls); b.innerHTML = ICON[icon]; b.append(label); return b; };
 function render() {
   const q = norm($('#q').value), f = { sexe: $('#fs').value, tranche: $('#ft').value, club: $('#fc').value };
@@ -165,7 +166,7 @@ function drawStats() {
     k.append(kpi('inscriptions', S.total), kpi(`sans anomalie (${pc(ok, S.total)})`, ok, 'ok'), kpi(`avec anomalie (${pc(S.anomalies, S.total)})`, S.anomalies, S.anomalies ? 'warn' : 'ok'), kpi(`sans email (${pc(S.sansEmail, S.total)})`, S.sansEmail, S.sansEmail ? 'warn' : 'ok'));
     g.append(donut('Qualité des inscriptions', [['Sans anomalie', ok], ['Avec anomalie', S.anomalies]], a => a.startsWith('Sans') ? 'var(--ac)' : 'var(--or)', v => go({ fa: v.startsWith('Sans') ? 'ok' : 'ko' })),
       donut('Statut des emails', S.statut, (a, i) => a === 'Envoyé' ? 'var(--ac)' : OTH[i % OTH.length], v => go({ fm: v })));
-    if (S.typeAnomalie.length) g.append(bars('Types d’anomalies', S.typeAnomalie.map(([a, n]) => [a.replace(/^[^\p{L}]+/u, ''), n, a]), S.anomalies, v => go({ fa: v }), 'var(--or)'));
+    if (S.typeAnomalie.length) g.append(bars('Types d’anomalies (un coureur peut en cumuler plusieurs)', S.typeAnomalie, S.anomalies, v => go({ fa: v }), 'var(--or)'));
     if (S.anomalies) g.append(bars('Anomalies par club (nombre, et part des coureurs du club)', S.anomClub.map(([a, n, t]) => [a, n, a, `${n} / ${t} (${pc(n, t)})`]), S.anomalies, v => go({ fc: v, fa: 'ko' }), 'var(--or)'));
     g.append(mails());
   }
