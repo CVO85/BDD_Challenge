@@ -36,6 +36,7 @@ async function init() {
 $('#pg').onclick = () => { shown += 100; render(); };
 const SV = d => `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICON = { user: SV('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'), flag: SV('<path d="M5 21V4m0 0h11l-2 4 2 4H5"/>') };
+ICON.rs = SV('<path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/>');
 ICON.dl = SV('<path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/>');
 const REV = {}; let VIEW = [];
 const okF = r => { const v = $('#fa').value; return !v || (v === 'ko' ? r.anomalie && !r.anomalie.startsWith('OK') : v === 'ok' ? r.anomalie.startsWith('OK') : types(r.anomalie).includes(v)); };
@@ -44,7 +45,7 @@ function render() {
   const q = norm($('#q').value), f = { sexe: $('#fs').value, tranche: $('#ft').value, club: $('#fc').value };
   let L = DATA.filter(r => (!q || norm([r.id, r.nom, r.prenom, r.club].join(' ')).includes(q)) && Object.entries(f).every(([k, v]) => !v || r[k] === v) && okF(r) && (!$('#fm').value || r.statut === $('#fm').value));
   L.sort((a, b) => (a[sortK] || '').localeCompare(b[sortK] || '', 'fr') * sortD);
-  $('#cnt').textContent = `${L.length} coureur(s) sur ${DATA.length}`; VIEW = L; const x = $('#ex'); x.innerHTML = ICON.dl; x.append(` Exporter (${L.length})`); x.disabled = !L.length;
+  $('#cnt').textContent = `${L.length} coureur(s) sur ${DATA.length}`; VIEW = L; const x = $('#ex'); x.innerHTML = ICON.dl; x.append(` Exporter (${L.length})`); x.disabled = !L.length; const rs = $('#rs'); rs.innerHTML = ICON.rs; rs.append(' Réinitialiser'); rs.disabled = !['q', 'fs', 'ft', 'fc', 'fa', 'fm'].some(i => $('#' + i).value);
   const tb = $('#tb'); tb.replaceChildren();
   L.slice(0, shown).forEach(r => {
     const tr = el('tr');
@@ -73,6 +74,7 @@ function render() {
   });
   $('#pg').classList.toggle('hide', L.length <= shown);
 }
+$('#rs').onclick = () => { ['q', 'fs', 'ft', 'fc', 'fa', 'fm'].forEach(i => { $('#' + i).value = ''; }); shown = 100; render(); };
 $('#cx').onclick = () => $('#dg').close();
 $('#cf').onsubmit = async e => {
   e.preventDefault();
@@ -154,6 +156,24 @@ function mails() {
   });
   c.append(hd, list); return c;
 }
+let acMode = 'mixte';
+function clubAnom() {
+  const c = el('div', 'card wide'), hd = el('div', 'mh'), tg = el('div', 'tg');
+  [['nb', 'Par nombre'], ['pct', 'Par pourcentage'], ['mixte', 'Mixte']].forEach(([m, l]) => { const b = el('button', acMode === m ? 'on' : '', l); b.onclick = () => { acMode = m; drawStats(); }; tg.append(b); });
+  hd.append(el('h3', '', 'Anomalies par club'), tg); c.append(hd);
+  const D = S.anomClub.map(([k, n, t]) => ({ k, n, t, p: n / t * 100 })), mn = Math.max(...D.map(d => d.n), 1), mp = Math.max(...D.map(d => d.p), 1);
+  D.sort(acMode === 'nb' ? (a, b) => b.n - a.n || b.p - a.p : (a, b) => b.p - a.p || b.n - a.n);
+  const line = (w, col, txt) => { const t = el('div', 'bt'), tr = el('div', 'tr'), b = el('div', 'b'); b.style.width = w + '%'; b.style.background = col; tr.append(b); t.append(tr, el('span', 'bv', txt)); return t; };
+  D.forEach(d => {
+    const r = el('div', 'bi clk'), pct = Math.round(d.p) + ' %'; r.onclick = () => go({ fc: d.k, fa: 'ko' }); r.append(el('div', 'bl', d.k));
+    if (acMode === 'nb') r.append(line(d.n / mn * 100, 'var(--or)', `${d.n} / ${d.t} (${pct})`));
+    else if (acMode === 'pct') r.append(line(d.p / mp * 100, 'var(--or)', `${pct} (${d.n} / ${d.t})`));
+    else { r.append(line(d.n / mn * 100, 'var(--or)', `${d.n} anomalie(s)`), line(d.p / mp * 100, '#b91c1c', `${pct} des ${d.t} coureurs`)); }
+    c.append(r);
+  });
+  c.append(el('p', 'hint', acMode === 'nb' ? 'Classement par nombre d’anomalies.' : acMode === 'pct' ? 'Classement par part de coureurs en anomalie (barres proportionnelles au club le plus touché).' : 'Classement par pourcentage. Barre orange : nombre d’anomalies. Barre rouge : part des coureurs du club.'));
+  return c;
+}
 function drawStats() {
   $('#s1').classList.toggle('on', sub === 1); $('#s2').classList.toggle('on', sub === 2);
   const k = el('div', 'kpis'), g = el('div', 'grid'), ok = S.total - S.anomalies, h = el('p', 'hint', 'Cliquez sur un élément d’un graphique pour afficher les coureurs correspondants.');
@@ -167,7 +187,7 @@ function drawStats() {
     g.append(donut('Qualité des inscriptions', [['Sans anomalie', ok], ['Avec anomalie', S.anomalies]], a => a.startsWith('Sans') ? 'var(--ac)' : 'var(--or)', v => go({ fa: v.startsWith('Sans') ? 'ok' : 'ko' })),
       donut('Statut des emails', S.statut, (a, i) => a === 'Envoyé' ? 'var(--ac)' : OTH[i % OTH.length], v => go({ fm: v })));
     if (S.typeAnomalie.length) g.append(bars('Types d’anomalies (un coureur peut en cumuler plusieurs)', S.typeAnomalie, S.anomalies, v => go({ fa: v }), 'var(--or)'));
-    if (S.anomalies) g.append(bars('Anomalies par club (nombre, et part des coureurs du club)', S.anomClub.map(([a, n, t]) => [a, n, a, `${n} / ${t} (${pc(n, t)})`]), S.anomalies, v => go({ fc: v, fa: 'ko' }), 'var(--or)'));
+    if (S.anomalies) g.append(clubAnom());
     g.append(mails());
   }
   $('#st').replaceChildren(h, k, g);
