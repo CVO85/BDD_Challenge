@@ -1,0 +1,69 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Challenge Vendée Orientation – Organisateurs</title>
+<style>
+:root{--bg:#f4f6f1;--fg:#1b2a21;--card:#fff;--ac:#1f5a3a;--onac:#fff;--or:#e8731a;--bd:#dde2d8;--tint:#e8f0e9;--warn:#b45309}
+@media(prefers-color-scheme:dark){:root{--bg:#141a16;--fg:#e8ece6;--card:#1f2721;--ac:#5fb381;--onac:#0f2418;--or:#f59a47;--bd:#36403a;--tint:#26322a;--warn:#fbbf24}}
+*{box-sizing:border-box}body{margin:0;font:15px system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+.ban{display:block;width:100%;height:auto}
+header{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 16px;background:var(--card);border-bottom:1px solid var(--bd);border-top:4px solid var(--or)}
+nav{display:flex;gap:6px}main{max-width:1400px;margin:auto;padding:16px}
+button,input,select,textarea{font:inherit;padding:8px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg)}
+button{cursor:pointer}button.p{background:var(--ac);color:var(--onac);border-color:var(--ac);font-weight:600}button:disabled{opacity:.6}
+nav button{border-radius:999px;font-weight:600}nav button.on{background:var(--ac);color:var(--onac);border-color:var(--ac)}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--or);outline-offset:1px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.bar input{flex:1;min-width:220px}
+.w{overflow-x:auto;border:1px solid var(--bd);border-radius:12px;background:var(--card)}
+table{width:100%;border-collapse:collapse}th,td{padding:9px 12px;border-bottom:1px solid var(--bd);text-align:left;font-size:14px;white-space:nowrap}
+th{cursor:pointer;background:var(--tint);color:var(--ac);font-weight:700}tr:hover td{background:var(--tint)}
+.warn{color:var(--warn)}.pill{padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--tint);color:var(--ac)}.pill.ko{background:#fef3c7;color:#92400e}
+.sx{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;color:#fff;font-size:12px;font-weight:700}.sx.m{background:#3b82f6}.sx.f{background:#ec4899}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;font-size:13px;font-weight:600;border-radius:999px;border:1.5px solid var(--ac);color:var(--ac);background:transparent}
+.btn:hover{background:var(--ac);color:var(--onac)}.btn.er{border-color:var(--or);color:var(--or)}.btn.er:hover{background:var(--or);color:#fff}
+.contact{font-size:13px}.contact a{color:var(--ac);font-weight:600}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}.row{display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0}
+.row span:first-child{width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.b{height:14px;background:var(--ac);border-radius:4px}
+.hide{display:none}.err{color:#b91c1c;font-weight:600}.ok{color:var(--ac);font-weight:600}
+dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--fg);width:min(440px,95vw)}dialog label{display:block;margin:8px 0}dialog input,dialog select,dialog textarea{width:100%}
+#login{max-width:400px;margin:6vh auto;border-top:4px solid var(--or)}#login h2{color:var(--ac);margin-top:0}.ban{max-width:900px;margin:0 auto}body.in .ban{display:none}
+header{padding:6px 16px;flex-wrap:wrap}.logo{height:64px;width:auto;max-width:48vw;object-fit:contain}
+.det td{background:var(--tint);font-size:13px;padding:7px 12px 7px 24px;border-left:4px solid var(--or)}.det .dl{margin:0 4px 0 22px;opacity:.7}.det .dl:first-child{margin-left:0}.det a{color:var(--ac);font-weight:600}
+nav.sub{margin-bottom:14px}.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}.kpi{margin:0;text-align:center}.kpi .n{font-size:28px;font-weight:700;color:var(--ac)}.kpi .n.warn{color:var(--warn)}
+.dn{display:flex;gap:20px;align-items:center;flex-wrap:wrap}.lg{font-size:14px}.lg div{margin:5px 0}.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:-1px}
+.vc{display:flex;gap:6px;align-items:flex-end;height:200px;overflow-x:auto;padding-bottom:4px}.col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:46px}.vb{width:70%;min-width:22px;border-radius:4px 4px 0 0}.col small{font-size:11px;white-space:nowrap}
+.clk{cursor:pointer}.clk:hover{background:var(--tint)}.hint{font-size:13px;opacity:.75;margin:0 0 10px}header{display:block;padding:0;border-top:0;border-bottom:3px solid var(--or)}.hin{max-width:1400px;margin:auto;padding:0 16px}
+.logo{display:block;height:auto;width:auto;max-width:100%;max-height:130px;margin:10px auto 4px}.cap{margin:0 0 6px;font-size:13px;opacity:.7}
+.tabs{display:flex;justify-content:space-between;align-items:flex-end}.tabs .btn{margin-bottom:6px}nav{margin-bottom:-3px}
+nav button{background:none;border:0;border-bottom:3px solid transparent;border-radius:0;padding:10px 16px;color:var(--fg);opacity:.7;font-weight:600}
+nav button.on{background:none;color:var(--ac);border-bottom-color:var(--or);opacity:1}nav.sub{border-bottom:1px solid var(--bd);margin-bottom:14px}nav.sub button{margin-bottom:-1px}
+.cut{display:inline-block;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}.pill.cut{max-width:230px}
+th.act,td.act{position:sticky;right:0;background:var(--card);box-shadow:-8px 0 8px -8px rgba(0,0,0,.25)}th.act{background:var(--tint);z-index:2}
+.wide{grid-column:1/-1}.bi{margin:10px 0;padding:2px 4px;border-radius:6px}.bl{font-size:14px;margin-bottom:3px}.bt{display:flex;align-items:center;gap:10px}
+.tr{flex:1;background:var(--tint);border-radius:4px;height:14px}.tr .b{height:14px}.bv{font-size:13px;min-width:120px;text-align:right;white-space:nowrap}
+.lg{flex:1;min-width:190px}.lg div{display:flex;align-items:baseline;gap:8px}.lb{flex:1}.lv{white-space:nowrap}.dot{flex:none}
+.mh{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px}.mh h3{margin:0}.tg{display:flex;gap:4px}.tg button{padding:4px 12px;border-radius:999px;font-size:13px}.tg button.on{background:var(--or);color:#fff;border-color:var(--or)}
+.ml{max-height:380px;overflow-y:auto;padding-right:4px}.mr{display:grid;grid-template-columns:120px 1fr 40px 90px;gap:10px;align-items:center;margin:5px 0}.md{font-size:13px;text-transform:capitalize}.mc{font-size:12px;opacity:.7;white-space:nowrap}.mr .bv{min-width:0}
+@media(max-width:700px){
+main{padding:10px}.hin{padding:0 10px}.logo{max-height:90px}.grid{grid-template-columns:minmax(0,1fr)}.card{min-width:0}.kpis{grid-template-columns:1fr 1fr}.card{padding:12px}
+.bar select,.bar input{flex:1 1 46%;min-width:0}.bar input{flex-basis:100%}.bar #ex{flex-basis:100%;justify-content:center;margin-left:0!important}
+.w{border:0;background:none;overflow:visible;border-radius:0}table,tbody{display:block}thead{display:none}
+tbody tr:not(.det){display:grid;grid-template-columns:auto auto auto 1fr;grid-template-areas:"sx nom pre id" "club club club club" "age age ctl ctl" "act act act act";gap:6px 8px;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+tbody tr:not(.det) td{display:block;border:0;padding:0;white-space:normal;background:none!important;box-shadow:none;font-size:14px}
+tr:not(.det) td:nth-child(1){grid-area:id;text-align:right;font-size:12px;opacity:.6}tr:not(.det) td:nth-child(2){grid-area:nom;font-weight:700}tr:not(.det) td:nth-child(3){grid-area:pre;font-weight:700}
+tr:not(.det) td:nth-child(4){grid-area:sx}tr:not(.det) td:nth-child(5){grid-area:age;font-size:13px}tr:not(.det) td:nth-child(6){grid-area:club}tr:not(.det) td:nth-child(7){grid-area:ctl;text-align:right}
+tbody tr:not(.det) td.act{grid-area:act;position:static;display:flex;gap:8px;padding-top:4px}td.act .btn{flex:1;justify-content:center;padding:9px}.cut{max-width:100%}
+.det{display:block;margin:-12px 0 10px}.det td{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:10px 14px;border-radius:0 0 12px 12px;white-space:normal}.det .dl{margin:0}
+.mr{grid-template-columns:86px 1fr 32px}.mc{display:none}}
+.btn:disabled{opacity:.45;cursor:default}.btn:disabled:hover{background:transparent;color:var(--ac)}@media(max-width:700px){.bar #rs{flex-basis:100%;justify-content:center}}</style></head><body>
+<img class="ban" src="banniere.png" alt="Challenge Vendée Orientation 2026/2027">
+<div id="login" class="card"><h2>Espace organisateurs</h2><p>Saisissez votre email pour recevoir un lien de connexion.</p>
+<form id="lf"><input type="email" id="le" required placeholder="prenom@exemple.fr" style="width:100%;margin-bottom:8px"><button class="p" style="width:100%">Recevoir le lien</button></form><p id="lm" role="alert"></p></div>
+<div id="app" class="hide"><header><div class="hin"><img class="logo" src="banniere.png" alt="Challenge Vendée Orientation 2026/2027"><p class="cap">Espace organisateurs · <span id="capn"></span></p></div>
+<div class="hin tabs"><nav><button id="t1" class="on">Coureurs</button><button id="t2">Statistiques</button></nav><button id="out" class="btn">Quitter</button></div></header>
+<main><section id="v1"><div id="back" class="hide" style="margin-bottom:10px"><button id="bk" class="btn">← Retour aux statistiques</button></div><div class="bar"><input id="q" type="search" placeholder="Nom, prénom, ID, club…"><select id="fs"><option value="">Sexe</option></select><select id="ft"><option value="">Âge</option></select><select id="fc"><option value="">Club</option></select><select id="fa"><option value="">Contrôle (tous)</option><option value="ko">Anomalies seulement</option><option value="ok">Sans anomalie</option></select><select id="fm"><option value="">Statut email</option></select><button id="rs" class="btn" type="button" title="Effacer la recherche et tous les filtres"></button><button id="ex" class="btn" style="margin-left:auto" title="Exporter la sélection en CSV, coordonnées incluses (ouvrable dans Excel)"></button></div>
+<p id="cnt"></p><div class="w"><table><thead><tr id="th"></tr></thead><tbody id="tb"></tbody></table></div><p><button id="pg" class="hide">Afficher plus</button></p></section>
+<section id="v2" class="hide"><nav class="sub"><button id="s1" class="on">Coureurs</button><button id="s2">Inscriptions &amp; qualité</button></nav><div id="st"></div></section></main></div>
+<dialog id="dg"><form id="cf"><h3>Signaler une erreur</h3><p id="ci"></p><label>Champ concerné<select id="cch"><option>Nom</option><option>Prénom</option><option>Sexe</option><option>Date de naissance</option><option>Email</option><option>Téléphone</option><option>Club</option><option>Autre</option></select></label>
+<label>Valeur correcte<input id="cv" required maxlength="200"></label><label>Commentaire<textarea id="cc" maxlength="1000"></textarea></label><input id="cw" class="hide" tabindex="-1" autocomplete="off">
+<p id="cm"></p><button class="p">Envoyer</button> <button type="button" id="cx">Fermer</button></form></dialog>
+<script src="app.js"></script></body></html>
